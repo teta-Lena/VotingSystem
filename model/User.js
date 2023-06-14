@@ -12,17 +12,17 @@ const userSchema = new mongoose.Schema({
   //   role: { type: String, enum: ['voter', 'admin'], default: 'voter' }
 });
 
-userSchema.method.generateAuthToken = function () {
-  return jwt.sign(
-    {
-      id: this._id,
-    },
-    process.env.TOKEN,
-    {
-      expiresIn: "5h",
-    }
-  );
-};
+// userSchema.method.generateAuthToken = function () {
+//   return jwt.sign(
+//     {
+//       id: this._id,
+//     },
+//     process.env.TOKEN,
+//     {
+//       expiresIn: "5h",
+//     }
+//   );
+// };
 const User = mongoose.model("User", userSchema);
 
 const validation = (body) => {
@@ -41,10 +41,10 @@ const loginvalidation = (body) => {
   return joi
     .object()
     .keys({
-      email: Joi.string().email().required(),
+      email: Joi.string().required(),
       password: Joi.string().required(),
     })
     .validate(body);
 };
 
-module.exports = { User, validation };
+module.exports = { User, validation, loginvalidation };

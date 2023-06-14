@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const userRoutes = require("./routes/userRoutes");
 // const adminRoutes = require('./routes/adminRoutes');
+const dotenv = require("dotenv");
+dotenv.config();
+const { DB_URL } = process.env;
 
 const app = express();
 
@@ -10,7 +13,7 @@ app.use(express.json());
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/VotingBackend", {
+  .connect(DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
