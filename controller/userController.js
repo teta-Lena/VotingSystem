@@ -1,51 +1,25 @@
-const User = require("../models/User");
+const { User, validation } = require("../model/User");
+const bcryptjs = require("bcryptjs");
 
-// // Controller for registering a user
-// async function registerUser(req, res) {
-//   try {
-//     const { email, firstName, lastName, phone, password, role } = req.body;
+exports.createUser = async (req, res) => {
+  try {
+    const { firstname, lastname, email, phone, password } = req.body;
+    const { errors } = validation(req.body);
+    if (errors) {
+      console.log("here error");
+      return res
+        .status(400)
+        .send({ message: `Errros have been found ${errors.message}` });
+    }
 
-//     const user = new User({
-//       email,
-//       firstName,
-//       lastName,
-//       phone,
-//       password,
-//       role,
-//     });
+    const salt = await bcryptjs.genSalt(10);
+    req.body.password = await bcryptjs.hash(req.body.password, salt);
 
-//     await user.save();
+    const newUser = new User(req.body);
+    const result = await newUser.save();
 
-//     res.status(201).json({ message: "User registered successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
-
-// // Controller for voting
-// async function vote(req, res) {
-//   try {
-//     const { candidateId } = req.body;
-//     const userId = req.user.id;
-
-//     // Check if the user is a voter
-//     const user = await User.findById(userId);
-//     if (user.role !== "voter") {
-//       return res
-//         .status(403)
-//         .json({ error: "You do not have permission to vote" });
-//     }
-
-//     // Perform the voting logic here
-
-//     res.status(200).json({ message: "Vote recorded successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
-
-
-exports.createUser = async (req,res)=>{
-
-    // const {firstname}
-}
+    return res.status(201).send({ message: result });
+  } catch (e) {
+    return res.status(500).send({ message: e.message });
+  }
+};
