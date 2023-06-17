@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const userRoutes = require("./routes/userRoutes");
 // const adminRoutes = require('./routes/adminRoutes');
 const dotenv = require("dotenv");
+const cors = require("cors");
 dotenv.config();
 const { DB_URL } = process.env;
 
@@ -10,6 +11,7 @@ const app = express();
 
 // Parse JSON bodies
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 mongoose

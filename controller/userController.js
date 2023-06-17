@@ -7,14 +7,13 @@ exports.createUser = async (req, res) => {
     const { firstname, lastname, email, phone, password } = req.body;
     const { errors } = validation(req.body);
     if (errors) {
-      console.log("here error");
       return res
         .status(400)
         .send({ message: `Errros have been found ${errors.message}` });
     }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
+      return res.status(400).json({ error: "Email address is already in use" });
     }
 
     const salt = await bcryptjs.genSalt(10);
@@ -45,8 +44,8 @@ exports.Login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    console.log(email);
-    console.log(user);
+    // console.log(email);
+    // console.log(user);
     // Compare the passwords
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
@@ -57,7 +56,7 @@ exports.Login = async (req, res) => {
       expiresIn: "1h",
     });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, user });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" + error });
   }
