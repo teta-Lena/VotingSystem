@@ -7,17 +7,15 @@ const {
 const admin = require("../middleware/adminMiddleware");
 const auth = require("../middleware/authMiddleware");
 
-module.exports = (app) => {
-  var router = require("express").Router();
+var router = require("express").Router();
 
-  router.get("/", auth, getAllCandidates);
+router.get("/", auth, getAllCandidates);
 
-  router.post([auth, admin, createCandidate]);
+router.post("/create", auth, admin, createCandidate);
 
-  router.put("/:id", auth, admin, updateCandidate);
+router.put("/:id", auth, admin, updateCandidate);
 
-  router.delete("/:id", auth, admin, deleteCandidate);
+router.delete("/:id", auth, admin, deleteCandidate);
 
-  // app.use("/api/candidates", router);
-  module.exports = router;
-};
+// app.use("/api/candidates", router);
+module.exports = router;

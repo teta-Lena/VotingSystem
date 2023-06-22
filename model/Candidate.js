@@ -19,7 +19,7 @@ var schema = mongoose.Schema(
       type: String,
       required: true,
     },
-    nationalId: {
+    nid: {
       type: String,
       unique: true,
       required: true,
@@ -40,7 +40,7 @@ module.exports.validateCandidate = (body) => {
     profilePicture: Joi.string(),
     gender: Joi.string().valid("male", "female").required(),
     missionStatement: Joi.string().required(),
-    nationalId: Joi.string()
+    nid: Joi.string()
       .pattern(/(?<!\d)\d{16}(?!\d)/)
       .length(16)
       .required(),

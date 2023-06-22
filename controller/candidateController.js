@@ -35,23 +35,19 @@ exports.getAllCandidates = async (req, res) => {
   }
 };
 
-/***
- *  Create's a new candidate
- * @param req
- * @param res
- */
 exports.createCandidate = async (req, res) => {
   try {
+    console.log("here");
     const { error } = validateCandidate(req.body);
     if (error)
       return res.status(400).send({
         message: error.details[0].message,
       });
 
-    let { nationalId } = req.body;
+    let { nid } = req.body;
 
     let candidate = await Candidate.findOne({
-      nationalId,
+      nid,
     });
 
     if (candidate) {
@@ -73,11 +69,6 @@ exports.createCandidate = async (req, res) => {
   }
 };
 
-/***
- *  updates's a new candidate
- * @param req
- * @param res
- */
 exports.updateCandidate = async (req, res) => {
   try {
     if (!validateObjectId(req.params.id))
