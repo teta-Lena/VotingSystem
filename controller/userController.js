@@ -1,6 +1,7 @@
 const { User, validation, loginvalidation } = require("../model/User");
 const bcryptjs = require("bcryptjs");
 // const { TOKEN } = process.env;
+const tokenService = require("../service/tokenService");
 const jwt = require("jsonwebtoken");
 exports.createUser = async (req, res) => {
   try {
@@ -22,7 +23,7 @@ exports.createUser = async (req, res) => {
     const newUser = new User(req.body);
     const result = await newUser.save();
 
-    return res.status(201).send({ message: result });
+    return res.status(201).send({ data: result, sucess: true });
   } catch (e) {
     return res.status(500).send({ message: e.message });
   }
@@ -52,12 +53,47 @@ exports.Login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user._id }, "T18LX03NA05", {
-      expiresIn: "1h",
-    });
+    const accesstoken = await tokenService.generateAuthTokens(user);
 
-    return res.status(200).json({ token, user });
+    return res.status(200).json({ token: accesstoken, user, success: true });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" + error });
+  }
+};
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const result = await User.findOne({
+      _id: req.user._id,
+    });
+
+    return res.status(201).send({
+      message: "OK",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send(e.toString().split('"').join(""));
+  }
+};
+
+exports.getUsers = async (req, res) => {
+  try {
+    // const filters = {};
+    // const options = {
+    //   limit: req.query.limit || 1,
+    //   page: req.query.page || 1,
+    // };
+    // filters first param
+    // const users = await User.paginate(filters, options);
+    const users = await User.find({});
+    if (users) {
+      res.status(200).json({
+        success: true,
+        users,
+      });
+    } else {
+      console.log("Failed to fetch all users");
+    }
+  } catch (e) {
+    return res.status(500).send({ message: `Error encountered: ${e}` });
   }
 };

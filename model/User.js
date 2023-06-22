@@ -8,21 +8,15 @@ const userSchema = new mongoose.Schema({
   lastname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
+  nid: { type: String, required: true, length: 16 },
   password: { type: String, required: true },
-  //   role: { type: String, enum: ['voter', 'admin'], default: 'voter' }
+  role: {
+    type: String,
+    enum: ["voter", "admin"],
+    default: "voter",
+  },
 });
 
-// userSchema.method.generateAuthToken = function () {
-//   return jwt.sign(
-//     {
-//       id: this._id,
-//     },
-//     process.env.TOKEN,
-//     {
-//       expiresIn: "5h",
-//     }
-//   );
-// };
 const User = mongoose.model("User", userSchema);
 
 const validation = (body) => {
@@ -32,6 +26,10 @@ const validation = (body) => {
       firstname: Joi.string().required(),
       lastname: Joi.string().required(),
       email: Joi.string().email().required(),
+      nid: Joi.string()
+        .required()
+        .length(16)
+        .pattern(/(?<!\d)\d{16}(?!\d)/),
       phone: Joi.string().required(),
       password: Joi.string().required(),
     })
@@ -41,7 +39,7 @@ const loginvalidation = (body) => {
   return joi
     .object()
     .keys({
-      email: Joi.string().required(),
+      email: Joi.string().required().email(),
       password: Joi.string().required(),
     })
     .validate(body);

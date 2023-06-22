@@ -6,7 +6,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 dotenv.config();
 const { DB_URL } = process.env;
-
+const votesRoutes = require("./routes/votes.routes");
+const candidateRoutes = require("./routes/candidateRoutes");
 const app = express();
 
 // Parse JSON bodies
@@ -24,6 +25,8 @@ mongoose
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/votes", votesRoutes);
+app.use("/api/candidates", candidateRoutes);
 // app.use('/api/admin', adminRoutes);
 
 // Start the server

@@ -1,17 +1,23 @@
 const jwt = require("jsonwebtoken");
+const User = require("../model/User");
 
-exports.authenticate = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) {
-    return res.status(401).json({ error: "Authentication failed" });
-  }
-
-  // Verify and decode the token
-  jwt.verify(token, "T18LX03NA05", (err, decodedToken) => {
-    if (err) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-    req.user = decodedToken;
+const auth = async (req, res, next) => {
+  if (!req.header("Authorization"))
+    return res.status(401).send("UNAUTHORIZED .. Log in first");
+  //header on the frontend
+  var token = req.header("Authorization").trim();
+  // console.log(token, "the token");
+  if (!token) return res.status(401).send("UNAUTHORIZED ... Log in first");
+  try {
+    token = token.replace("Bearer", "").trim();
+    let user = jwt.verify(token, process.env.TOKEN.trim());
+    const userInfo = await User.findById(user.userId);
+    delete userInfo.password;
+    req.user = userInfo;
     next();
-  });
+  } catch (e) {
+    return res.status(500).send({ message: `Error ${e}` });
+  }
 };
+
+module.exports = auth;
