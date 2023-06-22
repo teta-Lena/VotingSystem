@@ -1,13 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const userRoutes = require("./routes/userRoutes");
-// const adminRoutes = require('./routes/adminRoutes');
 const dotenv = require("dotenv");
 const cors = require("cors");
 dotenv.config();
 const { DB_URL } = process.env;
-const votesRoutes = require("./routes/votes.routes");
-const candidateRoutes = require("./routes/candidateRoutes");
+const routes = require("./routes/index");
 const app = express();
 
 // Parse JSON bodies
@@ -24,10 +21,11 @@ mongoose
   .catch((error) => console.error("Failed to connect to MongoDB", error));
 
 // Routes
-app.use("/api/users", userRoutes);
-app.use("/api/votes", votesRoutes);
-app.use("/api/candidates", candidateRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/votes", votesRoutes);
+// app.use("/api/candidates", candidateRoutes);
 // app.use('/api/admin', adminRoutes);
+app.use("/api/v1/", routes);
 
 // Start the server
 app.listen(3000, () => {

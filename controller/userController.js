@@ -1,24 +1,24 @@
 const { User, validation, loginvalidation } = require("../model/User");
 const bcryptjs = require("bcryptjs");
 // const { TOKEN } = process.env;
-const hashPassword = require("../utils/imports");
+const { hashPassword } = require("../utils/imports");
 const tokenService = require("../service/tokenService");
 const jwt = require("jsonwebtoken");
 
 //user signup
 exports.createUser = async (req, res) => {
   try {
-    const { error } = validateUser(req.body);
+    const { error } = validation(req.body);
     if (error)
       return res.status(400).send({
         message: error.details[0].message,
       });
 
-    let count = await User.countDocuments({ type: "ADMIN" });
+    let count = await User.countDocuments({ role: "admin" });
     if (count)
       return res.status(400).send({ message: "Admin is already created" });
 
-    let { email, nationalId, phone } = req.body;
+    let { email, nid, phone } = req.body;
 
     let user = await User.findOne({
       $or: [
@@ -26,7 +26,7 @@ exports.createUser = async (req, res) => {
           email,
         },
         {
-          nationalId,
+          nid,
         },
         {
           phone,
@@ -37,6 +37,7 @@ exports.createUser = async (req, res) => {
     if (user) {
       const phoneFound = phone == user.phone;
       const emailFound = email == user.email;
+      console.log(phoneFound, emailFound, nid);
       return res.status(400).send({
         message: `User with same ${
           phoneFound ? "phone " : emailFound ? "email " : "nationalId "
