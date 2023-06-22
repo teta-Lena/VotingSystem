@@ -2,21 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const mongoosePaginate = require("mongoose-paginate-v2");
 
-/**
- * @swagger
- * definitions:
- *   Votes:
- *     properties:
- *       _id:
- *         type: string
- *       candidate:
- *         type: string
- *       user:
- *         type: string
- *     required:
- *       - candidate
- *       - user
- */
+
 
 var schema = mongoose.Schema(
   {

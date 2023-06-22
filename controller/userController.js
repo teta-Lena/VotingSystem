@@ -1,31 +1,61 @@
 const { User, validation, loginvalidation } = require("../model/User");
 const bcryptjs = require("bcryptjs");
 // const { TOKEN } = process.env;
+const hashPassword = require("../utils/imports");
 const tokenService = require("../service/tokenService");
 const jwt = require("jsonwebtoken");
+
+//user signup
 exports.createUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, phone, password } = req.body;
-    const { errors } = validation(req.body);
-    if (errors) {
-      return res
-        .status(400)
-        .send({ message: `Errros have been found ${errors.message}` });
-    }
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "Email address is already in use" });
+    const { error } = validateUser(req.body);
+    if (error)
+      return res.status(400).send({
+        message: error.details[0].message,
+      });
+
+    let count = await User.countDocuments({ type: "ADMIN" });
+    if (count)
+      return res.status(400).send({ message: "Admin is already created" });
+
+    let { email, nationalId, phone } = req.body;
+
+    let user = await User.findOne({
+      $or: [
+        {
+          email,
+        },
+        {
+          nationalId,
+        },
+        {
+          phone,
+        },
+      ],
+    });
+
+    if (user) {
+      const phoneFound = phone == user.phone;
+      const emailFound = email == user.email;
+      return res.status(400).send({
+        message: `User with same ${
+          phoneFound ? "phone " : emailFound ? "email " : "nationalId "
+        } arleady exist`,
+      });
     }
 
-    const salt = await bcryptjs.genSalt(10);
-    req.body.password = await bcryptjs.hash(req.body.password, salt);
+    req.body.password = await hashPassword(req.body.password);
 
     const newUser = new User(req.body);
+
     const result = await newUser.save();
 
-    return res.status(201).send({ data: result, sucess: true });
+    return res.status(201).send({
+      message: "CREATED",
+      data: result,
+    });
   } catch (e) {
-    return res.status(500).send({ message: e.message });
+    return res.status(500).send(e.toString().split('"').join(""));
   }
 };
 // User login
@@ -45,9 +75,7 @@ exports.Login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    // console.log(email);
-    // console.log(user);
-    // Compare the passwords
+
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -95,5 +123,80 @@ exports.getUsers = async (req, res) => {
     }
   } catch (e) {
     return res.status(500).send({ message: `Error encountered: ${e}` });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { error } = validation(req.body, true);
+    if (error)
+      return res.status(400).send({
+        message: error.details[0].message,
+      });
+
+    let { email, nationalId, phone } = req.body;
+
+    let duplicate_user = await User.findOne({
+      _id: {
+        $ne: req.user._id,
+      },
+      $or: [
+        {
+          email: email,
+        },
+        {
+          nationalId: nationalId,
+        },
+        {
+          phone: phone,
+        },
+      ],
+    });
+
+    if (duplicate_user) {
+      const phoneFound = phone == duplicate_user.phone;
+      const emailFound = email == duplicate_user.email;
+      return res.status(400).send({
+        message: `User with same ${
+          phoneFound ? "phone " : emailFound ? "email " : "nationalId "
+        } arleady exist`,
+      });
+    }
+
+    const result = await User.findOneAndUpdate(
+      {
+        _id: req.user._id,
+      },
+      req.body,
+      {
+        new: true,
+      }
+    );
+
+    return res.status(200).send({
+      message: "UPDATED",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send(e.toString().split('"').join(""));
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const result = await User.findOneAndDelete({
+      _id: req.user._id,
+    });
+    if (!result)
+      return res.status(404).send({
+        message: "User not found",
+      });
+
+    return res.send({
+      message: "DELETED",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send(e.toString().split('"').join(""));
   }
 };

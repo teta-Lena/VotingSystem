@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
+  phone: { type: String, required: true, unique: true },
   nid: { type: String, required: true, length: 16 },
   password: { type: String, required: true },
   role: {
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-const validation = (body) => {
+const validation = (body, isUpdating = false) => {
   return joi
     .object()
     .keys({
@@ -30,8 +30,11 @@ const validation = (body) => {
         .required()
         .length(16)
         .pattern(/(?<!\d)\d{16}(?!\d)/),
-      phone: Joi.string().required(),
+      phone: Joi.string()
+        .required()
+        .regex(/(?<!\d)\d{10}(?!\d)/),
       password: Joi.string().required(),
+      role: Joi.string().valid("admin", "voter"),
     })
     .validate(body);
 };
