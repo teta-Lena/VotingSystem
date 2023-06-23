@@ -26,6 +26,7 @@ schema.plugin(mongoosePaginate);
 const Votes = mongoose.model("votes", schema);
 
 module.exports = Votes;
+
 module.exports.validateVotes = (body) => {
   return Joi.object({
     candidate: Joi.string().required(),

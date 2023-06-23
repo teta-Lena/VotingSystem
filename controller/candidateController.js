@@ -1,5 +1,5 @@
 const { validateCandidate, Candidate } = require("../model/Candidate");
-const { Votes } = require("../model/Votes");
+const Votes = require("../model/Votes");
 const { validateObjectId } = require("../utils/imports");
 
 /***
@@ -23,6 +23,7 @@ exports.getAllCandidates = async (req, res) => {
     let data = await Candidate.paginate({}, options);
     data = JSON.parse(JSON.stringify(data));
     for (const el of data.docs) {
+      console.log(el);
       let count = await Votes.countDocuments({ candidate: el._id });
       el.total_votes = count;
     }

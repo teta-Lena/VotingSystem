@@ -91,13 +91,15 @@ exports.Login = async (req, res) => {
 };
 exports.getCurrentUser = async (req, res) => {
   try {
-    const result = await User.findOne({
+    const user = await User.findOne({
       _id: req.user._id,
     });
 
-    return res.status(201).send({
-      message: "OK",
-      data: result,
+    console.log(user);
+
+    return res.status(200).json({
+      user,
+      success: true,
     });
   } catch (e) {
     return res.status(500).send(e.toString().split('"').join(""));

@@ -1,13 +1,10 @@
 const { Candidate } = require("../model/Candidate");
 const { User } = require("../model/User");
-const { validateVotes, Votes } = require("../model/Votes");
+const { validateVotes } = require("../model/Votes");
+const Votes = require("../model/Votes");
+// const Votes =
 const { validateObjectId } = require("../utils/imports");
 
-/***
- * Get all userCandidates
- * @param req
- * @param res
- */
 exports.getAllVotes = async (req, res) => {
   try {
     let { limit, page } = req.query;
@@ -32,11 +29,6 @@ exports.getAllVotes = async (req, res) => {
   }
 };
 
-/***
- *  Create's a new vote
- * @param req
- * @param res
- */
 exports.createVotes = async (req, res) => {
   try {
     console.log(req.body);
